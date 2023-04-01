@@ -55,7 +55,8 @@ def turnOfTetrix(btModule):
 
 
 def btConnect():
-    btModule = serial.Serial('/dev/tty.HC-05-DevB', 9600)
+    # btModule = serial.Serial('/dev/tty.HC-05-DevB', 9600)
+    btModule = serial.Serial('COM3', 9600)
     sleep(3)
     return btModule
 
@@ -63,11 +64,3 @@ def btConnect():
 def btDisconnect(btModule):
     btModule.close()
 
-
-
-
-# path = ["Left","Left","Forward","Forward","Forward","Left"]
-# movement = motionPlan(path)
-# print(movement)
-# bot_movements_str = ''.join(movement)
-# print(bot_movements_str.encode())
