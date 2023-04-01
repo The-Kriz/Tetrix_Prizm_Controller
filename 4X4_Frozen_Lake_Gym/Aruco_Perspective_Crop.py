@@ -1,11 +1,9 @@
 import numpy as np
-import cv2, PIL
+import cv2
 from cv2 import aruco
-import pandas as pd
-import math
 
 
-def Distance(P1,P2):
+def Distance(P1, P2):
     distance = np.sqrt(((P1[0] - P2[0]) ** 2) + ((P1[1] - P2[1]) ** 2))
     return distance
 
@@ -51,17 +49,18 @@ def Coordinates(coordinates_sorted, image, location):
     point_1_3 = arr1[location[1]]
     point_2_3 = arr1[location[2]]
     point_3_3 = arr1[location[3]]
-    return Perspective_wrap_crop(point_0_3, point_3_0, point_2_1, point_1_2, image)
+    return Perspective_wrap_crop(point_0_2, point_3_1, point_2_0, point_1_3, image)
     # return Perspective_wrap_crop(     BL  ,    TL   ,   TR    ,   BR    , image)
 
 
 def DetectAruco(Image, cornerReturn=False, imageReturn=False):
     grayImage = cv2.cvtColor(Image, cv2.COLOR_BGR2GRAY)
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
-    parameters = aruco.DetectorParameters_create
-    corners, ids, rejectedImgPoints = aruco.drawDetectedMarkers(grayImage, aruco_dict, parameters=parameters)
-    markedImage = aruco.drawDetectedMarkers(Image.copy(), corners, ids)
-
+    parameters = aruco.DetectorParameters_create()
+    corners, ids, rejectedImgPoints = aruco.detectMarkers(grayImage, aruco_dict, parameters=parameters)
+    if imageReturn:
+        markedImage = aruco.drawDetectedMarkers(Image.copy(), corners, ids)
+    # print(ids)
     if cornerReturn and imageReturn:
         return ids, corners, markedImage
     elif cornerReturn:
@@ -72,22 +71,74 @@ def DetectAruco(Image, cornerReturn=False, imageReturn=False):
         return ids
 
 
+def rearrangeAruco(ids, corners, CustomOrder=False):
+    if CustomOrder:
+        desiredOrder = CustomOrder
+    else:
+        desiredOrder = [0, 1, 2, 3]
+    idsX = [np.where(ids == i)[0][0] for i in desiredOrder]
+    idsReordered = ids[idsX]
+    cornersReordered = corners[idsX]
+
+    return idsReordered, cornersReordered
+
+
 def ArucoCropImage(Image):
     croppedImage = None
     ids, corners = DetectAruco(Image, cornerReturn=True)
+
     if ids is not None:
         int_corners = np.int0(corners)
+        reorderedIds, reorderedCorners = rearrangeAruco(ids, int_corners)
+
         pos = []
-        for i in range(len(ids)):
+        for i in range(len(reorderedIds)):
             pos.append(i)
-        if len(ids) == 4:
+        if len(reorderedIds) == 4:
             sortedCoordinates = []
             for j in range(4):
                 arrEachPoint = []
-                for X_id in range(len(ids)):
-                    arrays = int_corners[X_id]
+                for X_id in range(len(reorderedIds)):
+                    arrays = reorderedCorners[X_id]
                     arrEachPoint.append(arrays[0][j])
                 sortedCoordinates.append(arrEachPoint)
             croppedImage = Coordinates(sortedCoordinates, Image, pos)
     return croppedImage
+
+
+def SplitImage(image):
+    height, width, _ = image.shape
+    cell_size = int(min(height, width) / 4)
+    cellArucoID = []
+    for i in range(4):
+        for j in range(4):
+            x1 = j * cell_size
+            y1 = i * cell_size
+            x2 = x1 + cell_size
+            y2 = y1 + cell_size
+            cell = image[y1:y2, x1:x2]
+            arucoIdNo = DetectAruco(cell)
+            cellArucoID.append(arucoIdNo)
+    return cellArucoID
+
+def ArucoIdToGrid(idLocation):
+    start = 4
+    home = 5
+    holeMarkerID = [16, 17, 18, 19]
+    frozenFloorMarkerID = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    grid = []
+    for i in range(4):
+        row = ""
+        for j in range(4):
+            index = i * 4 + j
+            if idLocation[index] == 4:
+                row += "S"
+            elif idLocation[index] in frozenFloorMarkerID:
+                row += "F"
+            elif idLocation[index] == 5:
+                row += "G"
+            elif idLocation[index] in holeMarkerID:
+                row += "H"
+        grid.append(row)
+    return grid
 
