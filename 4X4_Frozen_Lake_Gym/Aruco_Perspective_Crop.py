@@ -142,3 +142,46 @@ def ArucoIdToGrid(idLocation):
         grid.append(row)
     return grid
 
+
+
+
+
+
+#######################################################################################################################
+# testing
+
+# # Example usage
+# arr = [5,7,8,9,10,17,11,18,12,13,14,19,20,15,16,6]
+# layout = ArucoIdToMatrix(arr)
+# print(layout)  # prints ["SFFF", "FHFH", "FFFH", "HFFG"]
+
+# def Tester():
+#     # Load image
+#     image = cv2.imread('aruco2.jpg')
+#     cv2.imshow("before", image)
+#     cropped_image = ArucoCropImage(image)
+#     cv2.imshow('Cropped Image', cropped_image)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+#
+# Tester()
+
+
+# ids = DetectAruco(Image)
+# idsReordered, cornersReordered = rearrangeAruco(ids)
+
+#
+# def Tester2():
+#     # Load image
+#     image = cv2.imread('aruco6.jpg')
+#     # cv2.imshow("orginal image",image)
+#     cropped_image = ArucoCropImage(image)
+#     ids = DetectAruco(cropped_image)
+#     val = SplitImage(cropped_image)
+#     array = ArucoIdToMatrix(val)
+#     print(array)
+#     return array
+#     # cv2.imshow('Cropped Image', cropped_image)
+#     # cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+
