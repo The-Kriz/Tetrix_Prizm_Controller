@@ -9,7 +9,7 @@ def gymActivation(grid):
     qtable = np.zeros((env.observation_space.n, env.action_space.n))
 
     # Hyper parameters
-    episodes = 1000  # Total number of episodes
+    episodes = 9000  # Total number of episodes
     alpha = 0.5  # Learning rate
     gamma = 0.9  # Discount factor
 
