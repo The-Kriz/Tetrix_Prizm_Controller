@@ -17,13 +17,16 @@ from Tetrix_Motion import *
 # ids = DetectAruco(cropped_image)
 # val = SplitImage(cropped_image)
 # grid = ArucoIdToGrid(val)
-#
-grid = ["HHHH", "FHHH", "FHHS", "GFFF"]
+# #
+# grid = ["HHHH", "FHHS", "FHHF", "GFFF"]
+grid = ["SHFG", "FHFH", "FHFH", "FFFH"]
+
 print(grid)
 env, qtable = gymActivation(grid)
 sequence = seq(env, qtable)
 path = PathText(sequence)
-
+# path = ['Left', 'Backward', 'Backward', 'Right', 'Right', 'Forward', 'Right', 'Forward']
+print(path)
 movement = motionPlan(path)
 print(movement)
 bot_movements_str = ''.join(movement)
