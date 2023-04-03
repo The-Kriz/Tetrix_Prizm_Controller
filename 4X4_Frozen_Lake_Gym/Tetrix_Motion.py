@@ -116,7 +116,6 @@ def motionPlan(path):
         bot_movements.append("4")
     elif path[i] == "Forward":
         bot_movements.append("1")
-    print(botFace)
     i += 1
     while True:
         if i >= len(path):
@@ -185,43 +184,31 @@ def motionPlan(path):
                 else:
                     bot_movements.append("1")
         i += 1
-        # print(botFace)
-    return bot_movements
+    reversedMovement = bot_movements[::-1]
+    return reversedMovement
 
 
 def sendMovement(bot_path, btModule):
     bot_movements_str = ''.join(bot_path)
-    btModule.write(bot_movements_str.encode())
+    encodedVal = bot_movements_str.encode()
+    btModule.write(encodedVal)
 
 
 def turnOfTetrix(btModule):
-    stop = 9
+    stop = "9"
     btModule.write(stop.encode())
 
 
 def btConnect():
-    # btModule = serial.Serial('/dev/tty.HC-05-DevB', 9600)
-    btModule = serial.Serial('COM3', 9600)
+    # btModule = serial.Serial('/dev/tty.HC-05-DevB', 9600) # Linux
+    btModule = serial.Serial('COM17', 9600)   # Windows
+    if btModule.is_open:
+        print('Connected to BT module')
+    else:
+        print('Failed to connect to BT module')
     sleep(3)
     return btModule
 
 
 def btDisconnect(btModule):
     btModule.close()
-
-
-
-
-# a = seq()
-# print(a)
-# path = PathText(a)
-# print(path)
-#
-#
-#
-#
-# # path = ["Left","Left","Forward","Forward","Forward","Left"]
-# movement = motionPlan(path)
-# print(movement)
-# bot_movements_str = ''.join(movement)
-# print(bot_movements_str.encode())
