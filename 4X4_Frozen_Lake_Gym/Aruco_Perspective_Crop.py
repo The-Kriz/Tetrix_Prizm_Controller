@@ -4,11 +4,25 @@ from cv2 import aruco
 
 
 def Distance(P1, P2):
+    """
+    Finds the distance between 2 points p1 and p2
+    :param P1: [P1x,P1y]
+    :param P2: [P2x,P2y]
+    :return: distance
+    """
     distance = np.sqrt(((P1[0] - P2[0]) ** 2) + ((P1[1] - P2[1]) ** 2))
     return distance
 
 
 def MaxDistance(A, B, C, D):
+    """
+    Finds the max distance between 2 pairs of points
+    :param A: [P1x,P1y]
+    :param B: [P2x,P2y]
+    :param C: [P3x,P3y]
+    :param D: [P4x,P4y]
+    :return: max distance
+    """
     width_AB = Distance(A, B)
     width_CD = Distance(C, D)
     maxDistance = max(int(width_AB), int(width_CD))
@@ -16,6 +30,15 @@ def MaxDistance(A, B, C, D):
 
 
 def Perspective_wrap_crop(pt_A, pt_B, pt_C, pt_D, img):
+    """
+    Takes in an 4 point coordinates and an image to crop the image
+    :param pt_A: [P1x,P1y]
+    :param pt_B: [P2x,P2y]
+    :param pt_C: [P3x,P3y]
+    :param pt_D: [P4x,P4y]
+    :param img: image to be cropped
+    :return: return cropped image
+    """
     maxWidth = MaxDistance(pt_A, pt_D, pt_B, pt_C)
     maxHeight = MaxDistance(pt_A, pt_B, pt_C, pt_D)
     input_pts = np.float32([pt_A, pt_B, pt_C, pt_D])
@@ -54,6 +77,13 @@ def Coordinates(coordinates_sorted, image, location):
 
 
 def DetectAruco(Image, cornerReturn=False, imageReturn=False):
+    """
+    Cheks the image for Aruco Markers
+    :param Image:
+    :param cornerReturn: If corner points needed
+    :param imageReturn: If Marker marked image needed
+    :return: ids corners markedImage
+    """
     grayImage = cv2.cvtColor(Image, cv2.COLOR_BGR2GRAY)
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
     parameters = aruco.DetectorParameters_create()
@@ -72,6 +102,13 @@ def DetectAruco(Image, cornerReturn=False, imageReturn=False):
 
 
 def rearrangeAruco(ids, corners, CustomOrder=False):
+    """
+    Re arrange the Aruco ids and corners to the desired order
+    :param ids:
+    :param corners:
+    :param CustomOrder:
+    :return: Re arranged ids and corners
+    """
     if CustomOrder:
         desiredOrder = CustomOrder
     else:
@@ -84,6 +121,11 @@ def rearrangeAruco(ids, corners, CustomOrder=False):
 
 
 def ArucoCropImage(Image):
+    """
+    Crop image based on 4 Aruco markers
+    :param Image:
+    :return: croppedImage
+    """
     croppedImage = None
     ids, corners = DetectAruco(Image, cornerReturn=True)
 
@@ -107,6 +149,11 @@ def ArucoCropImage(Image):
 
 
 def SplitImage(image):
+    """
+    Splits the image in to 4X4 (16) cells and checks individual image for Aruco markers
+    :param image:
+    :return: Aruco ID in each cell (ordered from [0,0] to [3,3])
+    """
     height, width, _ = image.shape
     cell_size = int(min(height, width) / 4)
     cellArucoID = []
@@ -122,6 +169,15 @@ def SplitImage(image):
     return cellArucoID
 
 def ArucoIdToGrid(idLocation):
+    """
+    Creating grid layout needed for the OpenAI Gym Frozen lake
+    S = Start
+    G = Goal
+    F = Frozen Lake / surface
+    H = Hole
+    :param idLocation: Aruco ID in each cell (ordered from [0,0] to [3,3])
+    :return: Frozen lake Grid
+    """
     start = 4
     home = 5
     holeMarkerID = [16, 17, 18, 19]
@@ -141,47 +197,3 @@ def ArucoIdToGrid(idLocation):
                 row += "H"
         grid.append(row)
     return grid
-
-
-
-
-
-
-#######################################################################################################################
-# testing
-
-# # Example usage
-# arr = [5,7,8,9,10,17,11,18,12,13,14,19,20,15,16,6]
-# layout = ArucoIdToMatrix(arr)
-# print(layout)  # prints ["SFFF", "FHFH", "FFFH", "HFFG"]
-
-# def Tester():
-#     # Load image
-#     image = cv2.imread('aruco2.jpg')
-#     cv2.imshow("before", image)
-#     cropped_image = ArucoCropImage(image)
-#     cv2.imshow('Cropped Image', cropped_image)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
-#
-# Tester()
-
-
-# ids = DetectAruco(Image)
-# idsReordered, cornersReordered = rearrangeAruco(ids)
-
-#
-# def Tester2():
-#     # Load image
-#     image = cv2.imread('aruco6.jpg')
-#     # cv2.imshow("orginal image",image)
-#     cropped_image = ArucoCropImage(image)
-#     ids = DetectAruco(cropped_image)
-#     val = SplitImage(cropped_image)
-#     array = ArucoIdToMatrix(val)
-#     print(array)
-#     return array
-#     # cv2.imshow('Cropped Image', cropped_image)
-#     # cv2.waitKey(0)
-#     cv2.destroyAllWindows()
-
