@@ -105,7 +105,3 @@ def PathText(sequence):
             print("error")
     print(path)
     return path
-
-# a = seq()
-# print(a)
-# print(PathText(a))
